@@ -1,0 +1,448 @@
+@import "tailwindcss";
+
+/* ============================================================
+   RETRO 90s INTERNET THEME
+   Times New Roman, blue hyperlinks, silver/gray chrome,
+   beveled boxes, purple navigation. Old-web vibes.
+   ============================================================ */
+
+:root {
+  --background: #c0c0c0; /* classic silver desktop */
+  --foreground: #000000;
+  --content-bg: #ffffff;
+  --content-alt: #f5f5f0;
+  --link: #0000cc; /* hyperlink blue */
+  --link-visited: #551a8b; /* visited purple */
+  --nav: #4b3a6b; /* purple navigation bar */
+  --nav-foreground: #ffffff;
+  --accent: #7a1f1f; /* maroon headings */
+  --sidebar-bg: #e8e8d8; /* pale khaki sidebar boxes */
+  --hairline: #808080;
+  --radius: 0px;
+
+  /* shadcn token bridges (kept minimal so any leftover components stay sane) */
+  --card: var(--content-bg);
+  --card-foreground: var(--foreground);
+  --popover: var(--content-bg);
+  --popover-foreground: var(--foreground);
+  --primary: var(--nav);
+  --primary-foreground: var(--nav-foreground);
+  --secondary: var(--sidebar-bg);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--content-alt);
+  --muted-foreground: #444444;
+  --border: var(--hairline);
+  --input: #ffffff;
+  --ring: var(--nav);
+}
+
+@theme inline {
+  --font-sans: "Times New Roman", Times, Georgia, serif;
+  --font-serif: "Times New Roman", Times, Georgia, serif;
+  --font-mono: "Courier New", Courier, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: #ffffff;
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-nav: var(--nav);
+  --color-nav-foreground: var(--nav-foreground);
+  --color-content: var(--content-bg);
+  --color-content-alt: var(--content-alt);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-hairline: var(--hairline);
+  --color-link: var(--link);
+  --color-link-visited: var(--link-visited);
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+@layer base {
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 16px;
+    line-height: 1.4;
+    overflow-x: hidden;
+    min-height: 100dvh;
+  }
+
+  /* Default hyperlink styling, straight out of 1999 */
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    transition: color 0.15s ease;
+  }
+  a:visited {
+    color: var(--link-visited);
+  }
+  a:hover {
+    color: #cc0000;
+    text-decoration-thickness: 2px;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--nav);
+    outline-offset: 1px;
+  }
+}
+
+@layer utilities {
+  .site-page {
+    min-height: 100dvh;
+    padding: 0.75rem 0.5rem 1.25rem;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 640px) {
+    .site-page {
+      padding: 1rem;
+    }
+  }
+
+  .site-window {
+    max-width: 64rem; /* matches max-w-5xl / welcome page */
+    margin-inline: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .site-window-narrow {
+    max-width: 22rem;
+  }
+
+  .site-inner {
+    background: var(--content-bg);
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .nav-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .nav-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Beveled "outset" box — raised 3D chrome look */
+  .bevel-out {
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    background: #d4d0c8;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  /* Beveled "inset" box — sunken input look */
+  .bevel-in {
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    background: #ffffff;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+  }
+  /* Simple hard 1px ridge frame used around content blocks */
+  .frame {
+    border: 1px solid var(--hairline);
+  }
+
+  /* Retro section header bar (purple gradient-free block) */
+  .titlebar {
+    background: var(--nav);
+    color: var(--nav-foreground);
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  /* Windows-95 style embossed titlebar with pseudo-gradient */
+  .titlebar-embossed {
+    background: linear-gradient(180deg, #5a4a7a 0%, #4b3a6b 50%, #3d2d5a 100%);
+    color: var(--nav-foreground);
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Folder-tab navigation (Amazon 1999 style) */
+  .tab {
+    border: 2px solid;
+    border-color: #ffffff #808080 var(--nav) #ffffff;
+    border-bottom: none;
+    background: #d4d0c8;
+    color: #000000;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    position: relative;
+    top: 2px;
+    transition: all 0.15s ease;
+  }
+  .tab:hover {
+    background: #e8e4dc;
+    color: #000000;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+  .tab-active {
+    background: var(--nav);
+    color: var(--nav-foreground);
+    border-color: var(--nav) var(--nav) var(--nav) var(--nav);
+    top: 0;
+    padding-top: 2px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .tab-active:hover {
+    background: var(--nav);
+    color: var(--nav-foreground);
+  }
+
+  /* Raised 3D button used for nav pills */
+  .btn3d {
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    background: #d4d0c8;
+    color: #000000;
+    font-weight: bold;
+    transition: all 0.1s ease;
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  }
+  .btn3d:hover {
+    background: #e8e4dc;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+  }
+  .btn3d:active {
+    border-color: #808080 #ffffff #ffffff #808080;
+    background: #d4d0c8;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+  }
+
+  /* Marquee scroll for the announcement bar */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee > span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 18s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Article body typography for dangerouslySetInnerHTML content */
+  .retro-prose p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .retro-prose h1,
+  .retro-prose h2,
+  .retro-prose h3 {
+    color: var(--accent);
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-family: "Times New Roman", Times, serif;
+  }
+  .retro-prose h1 {
+    font-size: 1.75rem;
+  }
+  .retro-prose h2 {
+    font-size: 1.4rem;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 0.15rem;
+  }
+  .retro-prose h3 {
+    font-size: 1.15rem;
+  }
+  .retro-prose a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+  .retro-prose img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--hairline);
+    border-radius: 0;
+  }
+  .retro-prose blockquote {
+    border-left: 4px solid var(--nav);
+    margin: 1rem 0;
+    padding: 0.5rem 0 0.5rem 1rem;
+    background: var(--content-alt);
+    font-style: italic;
+  }
+  .retro-prose code {
+    font-family: "Courier New", Courier, monospace;
+    background: #2d2d2d;
+    color: #f8f8f2;
+    padding: 0.15rem 0.3rem;
+    border-radius: 2px;
+    font-size: 0.85em;
+  }
+  .retro-prose .code-block-container {
+    background: #1e1e1e;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    margin: 0.75rem 0;
+    max-height: 250px;
+    overflow: hidden;
+  }
+  .retro-prose .code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background: #2d2d2d;
+    border-bottom: 1px solid #404040;
+  }
+  .retro-prose .code-language {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    color: #8be9fd;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .retro-prose .copy-code-btn {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    background: #4b3a6b;
+    color: white;
+    border: 1px solid;
+    border-color: #6b5691 #3d2d5a #3d2d5a #6b5691;
+    cursor: pointer;
+    font-family: "Courier New", Courier, monospace;
+  }
+  .retro-prose .copy-code-btn:hover {
+    background: #5a4a7a;
+  }
+  .retro-prose .copy-code-btn:active {
+    border-color: #3d2d5a #6b5691 #6b5691 #3d2d5a;
+  }
+  .retro-prose pre {
+    font-family: "Courier New", Courier, monospace;
+    background: transparent;
+    border: none;
+    padding: 0.4rem;
+    overflow-x: auto;
+    margin: 0;
+    max-height: 220px;
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+  .retro-prose pre code {
+    background: transparent;
+    padding: 0;
+    color: #f8f8f2;
+  }
+  /* Enhanced syntax highlighting colors */
+  .retro-prose pre .keyword { color: #ff79c6; font-weight: bold; }
+  .retro-prose pre .string { color: #f1fa8c; }
+  .retro-prose pre .number { color: #bd93f9; }
+  .retro-prose pre .comment { color: #6272a4; font-style: italic; }
+  .retro-prose pre .function { color: #50fa7b; font-weight: bold; }
+  .retro-prose pre .variable { color: #8be9fd; }
+  .retro-prose pre .operator { color: #ff79c6; }
+  .retro-prose pre .property { color: #66d9ef; }
+  .retro-prose pre .tag { color: #ff79c6; }
+  .retro-prose pre .attribute { color: #50fa7b; }
+
+  /* Blinking marquee-era emphasis (used sparingly) */
+  .blink {
+    animation: blink 1.2s steps(2, start) infinite;
+  }
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee > span {
+      animation: none;
+      padding-left: 0;
+    }
+    .blink {
+      animation: none;
+      visibility: visible;
+    }
+  }
+
+
+
+
+
+  /* Uploadthing retro button styling */
+  .ut-button {
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    background: #d4d0c8;
+    color: #000000;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, Georgia, serif;
+    transition: all 0.1s ease;
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  }
+  .ut-button:hover {
+    background: #e8e4dc;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+  }
+  .ut-button:active {
+    border-color: #808080 #ffffff #ffffff #808080;
+    background: #d4d0c8;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+  }
+  .ut-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Fix for uploadthing button loading state */
+  [data-ut-loading="true"] {
+    pointer-events: none !important;
+  }
+}

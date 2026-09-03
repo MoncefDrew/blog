@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
+    "@libsql/client": "^0.18.0",
+    "@uploadthing/shared": "^7.1.10",
+    "effect": "^3.22.1",
     "lucide-react": "^0.446.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

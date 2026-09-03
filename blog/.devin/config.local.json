@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(npm install)",
+      "Exec(curl)",
+      "Exec(date)",
+      "Exec(lsof)",
+      "Exec(npm uninstall)",
+      "Exec(npx tsc)"
+    ]
+  }
+}

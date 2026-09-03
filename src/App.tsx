@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase, type Post } from '@/lib/supabase';
+import { tursoDb, toggleMaskPost, deletePost, type Post } from '@/lib/turso';
 import { useAuth } from '@/lib/useAuth';
 import Layout from '@/components/Layout';
 import Home from '@/pages/Home';
 import Writing from '@/pages/Writing';
 import PostView from '@/pages/PostView';
 import NewPost from '@/pages/NewPost';
+import EditPost from '@/pages/EditPost';
 import About from '@/pages/About';
 import Projects from '@/pages/Projects';
 import Links from '@/pages/Links';
@@ -17,10 +18,12 @@ export type Page =
   | 'writing'
   | 'post'
   | 'new'
+  | 'edit'
   | 'login'
   | 'about'
   | 'projects'
-  | 'links';
+  | 'links'
+  | '404';
 
 export interface RouteState {
   page: Page;
@@ -37,6 +40,8 @@ function parseHash(): RouteState {
       return { page: 'post', postId: rest[0] ?? null };
     case 'new':
       return { page: 'new', postId: null };
+    case 'edit':
+      return { page: 'edit', postId: rest[0] ?? null };
     case 'login':
       return { page: 'login', postId: null };
     case 'about':
@@ -49,7 +54,7 @@ function parseHash(): RouteState {
     case 'home':
       return { page: 'home', postId: null };
     default:
-      return { page: 'home', postId: null };
+      return { page: '404', postId: null };
   }
 }
 
@@ -61,6 +66,8 @@ function routeToHash(route: RouteState): string {
       return '#/writing';
     case 'post':
       return route.postId ? `#/post/${route.postId}` : '#/writing';
+    case 'edit':
+      return route.postId ? `#/edit/${route.postId}` : '#/writing';
     case 'new':
       return '#/new';
     case 'login':
@@ -71,6 +78,8 @@ function routeToHash(route: RouteState): string {
       return '#/projects';
     case 'links':
       return '#/links';
+    case '404':
+      return '#/404';
   }
 }
 
@@ -81,14 +90,14 @@ export default function App() {
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [postLoading, setPostLoading] = useState(false);
 
-  const { session, signIn, signUp, signOut } = useAuth();
+  const { session, signIn, signOut } = useAuth();
   const writerEmail = session?.user?.email ?? null;
 
   const loadPosts = useCallback(async () => {
     setPostsLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await tursoDb
       .from('posts')
-      .select('id, title, body, author, created_at')
+      .select('id, title, body, author, created_at, published')
       .order('created_at', { ascending: false });
     if (error) console.error('Failed to load posts:', error.message);
     setPosts(data ?? []);
@@ -98,9 +107,9 @@ export default function App() {
   const loadPost = useCallback(async (id: string) => {
     setPostLoading(true);
     setActivePost(null);
-    const { data, error } = await supabase
+    const { data, error } = await tursoDb
       .from('posts')
-      .select('id, title, body, author, created_at')
+      .select('id, title, body, author, created_at, published')
       .eq('id', id)
       .maybeSingle();
     if (error) console.error('Failed to load post:', error.message);
@@ -120,7 +129,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (route.page === 'post' && route.postId) {
+    if ((route.page === 'post' || route.page === 'edit') && route.postId) {
       loadPost(route.postId);
     }
   }, [route, loadPost]);
@@ -130,14 +139,30 @@ export default function App() {
     window.location.hash = routeToHash(next);
   }, []);
 
+  const handleToggleMask = useCallback(
+    async (id: string, currentlyPublished: boolean) => {
+      await toggleMaskPost(id, currentlyPublished);
+      await loadPosts();
+      if (activePost && activePost.id === id) {
+        setActivePost((prev) =>
+          prev ? { ...prev, published: !currentlyPublished } : null
+        );
+      }
+    },
+    [loadPosts, activePost]
+  );
+
+  const handleDeletePost = useCallback(
+    async (id: string) => {
+      await deletePost(id);
+      await loadPosts();
+      navigate('writing');
+    },
+    [loadPosts, navigate]
+  );
+
   function handleSignIn(email: string, password: string) {
     return signIn(email, password).then(({ error }) => ({
-      error: error ? error.message : null,
-    }));
-  }
-
-  function handleSignUp(email: string, password: string) {
-    return signUp(email, password).then(({ error }) => ({
       error: error ? error.message : null,
     }));
   }
@@ -154,9 +179,9 @@ export default function App() {
     }
   }, [route.page, session, navigate]);
 
-  // Redirect: if not logged in and hit #/new, go to login
+  // Redirect: if not logged in and hit #/new or #/edit, go to login
   useEffect(() => {
-    if (route.page === 'new' && !session) {
+    if ((route.page === 'new' || route.page === 'edit') && !session) {
       navigate('login');
     }
   }, [route.page, session, navigate]);
@@ -165,8 +190,11 @@ export default function App() {
     <Layout
       currentPage={route.page}
       onNavigate={navigate}
-      recentPostTitles={posts.slice(0, 8).map((p) => ({ id: p.id, title: p.title }))}
-      postCount={posts.length}
+      recentPostTitles={posts
+        .filter((p) => p.published !== false || session)
+        .slice(0, 8)
+        .map((p) => ({ id: p.id, title: p.title }))}
+      postCount={posts.filter((p) => p.published !== false).length}
       writerEmail={writerEmail}
       onSignOut={handleSignOut}
       onSignInNavigate={() => navigate('login')}
@@ -185,6 +213,10 @@ export default function App() {
           loading={postsLoading}
           onOpenPost={(id) => navigate('post', id)}
           onNewPost={() => navigate('new')}
+          writerEmail={writerEmail}
+          onEditPost={(id) => navigate('edit', id)}
+          onToggleMask={handleToggleMask}
+          onDeletePost={handleDeletePost}
         />
       )}
       {route.page === 'post' && (
@@ -192,19 +224,47 @@ export default function App() {
           post={activePost}
           loading={postLoading}
           onBack={() => navigate('writing')}
+          writerEmail={writerEmail}
+          onEdit={(id) => navigate('edit', id)}
+          onToggleMask={handleToggleMask}
+          onDelete={handleDeletePost}
         />
       )}
       {route.page === 'new' && session && (
         <NewPost
           writerEmail={writerEmail}
-          onCreated={() => { loadPosts(); navigate('writing'); }}
+          onCreated={() => {
+            loadPosts();
+            navigate('writing');
+          }}
           onCancel={() => navigate('writing')}
+        />
+      )}
+      {route.page === 'edit' && session && (
+        <EditPost
+          post={activePost}
+          loading={postLoading}
+          writerEmail={writerEmail}
+          onUpdated={() => {
+            loadPosts();
+            if (activePost?.id) {
+              navigate('post', activePost.id);
+            } else {
+              navigate('writing');
+            }
+          }}
+          onDeleted={() => {
+            loadPosts();
+            navigate('writing');
+          }}
+          onCancel={() =>
+            activePost ? navigate('post', activePost.id) : navigate('writing')
+          }
         />
       )}
       {route.page === 'login' && !session && (
         <Login
           onSignIn={handleSignIn}
-          onSignUp={handleSignUp}
           onCancel={() => navigate('home')}
         />
       )}
@@ -215,6 +275,7 @@ export default function App() {
         route.page !== 'writing' &&
         route.page !== 'post' &&
         route.page !== 'new' &&
+        route.page !== 'edit' &&
         route.page !== 'login' &&
         route.page !== 'about' &&
         route.page !== 'projects' &&

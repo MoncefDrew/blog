@@ -1,34 +1,44 @@
 import { useEffect, useState, useCallback } from 'react';
-import type { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { tursoDb, type Session } from '@/lib/turso';
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
+    let isMounted = true;
+
+    tursoDb.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
+      if (isMounted) {
+        setSession(data?.session ?? null);
+        setLoading(false);
+      }
     });
 
-    supabase.auth.onAuthStateChange((_event, newSession) => {
-      (async () => {
-        setSession(newSession);
-      })();
-    });
+    const { data: authData } = tursoDb.auth.onAuthStateChange(
+      (_event: string, newSession: Session | null) => {
+        if (isMounted) {
+          setSession(newSession);
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      authData?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    return supabase.auth.signInWithPassword({ email, password });
+    return tursoDb.auth.signInWithPassword({ email, password });
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
-    return supabase.auth.signUp({ email, password });
+    return tursoDb.auth.signUp({ email, password });
   }, []);
 
   const signOut = useCallback(async () => {
-    return supabase.auth.signOut();
+    return tursoDb.auth.signOut();
   }, []);
 
   return { session, loading, signIn, signUp, signOut };
