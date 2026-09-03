@@ -10,7 +10,7 @@ export default function About() {
       {/* Profile Card with prof.jpg */}
       <div className="bg-theme-card border border-theme p-3 sm:p-4 flex flex-col sm:flex-row gap-4 items-center sm:items-start shadow-sm">
         <img
-          src="/blog/prof.jpg"
+          src="/prof.jpg"
           alt="Portrait of Moncef Mokrani"
           className="w-28 h-28 shrink-0 object-cover object-[50%_20%] border border-[#888]"
         />

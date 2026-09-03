@@ -40,7 +40,7 @@ export default function Layout({
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-3">
             <div className="flex items-center gap-3.5 sm:gap-4">
               <img
-                src="/blog/sword-2.png"
+                src="/sword-2.png"
                 alt="The Daemon Abyss icon"
                 className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 object-contain"
               />
@@ -180,7 +180,7 @@ export default function Layout({
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-[#ccd2e0]">
             <div className="flex items-center gap-2.5">
               <img
-                src="/blog/sword-2.png"
+                src="/sword-2.png"
                 alt="Sword glyph"
                 className="w-7 h-7 object-contain shrink-0"
               />
